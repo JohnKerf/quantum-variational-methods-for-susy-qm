@@ -56,29 +56,31 @@ def cost_function(params, paulis, coeffs, num_qubits, dev, ansatz, max_gate):
     return energy
 
     
-def run_vqe(i, paulis, coeffs, run_info, log_enabled, log_dir):
+def run_vqe(i, paulis, coeffs, ansatz, run_info, log_enabled, log_dir):
 
     if log_enabled: os.makedirs(log_dir, exist_ok=True)
     log_path = os.path.join(log_dir, f"vqe_run_{i}.log")
     logger = setup_logger(log_path, f"logger_{i}", enabled=log_enabled)
 
+    num_qubits = run_info["num_qubits"]
+    num_params = run_info["num_params"]
 
     seed = (os.getpid() * int(time.time())) % 123456789
-    dev = qml.device(device, wires=num_qubits, shots=shots, seed=seed)
+    dev = qml.device(run_info["device"], wires=num_qubits, shots=run_info["shots"], seed=seed)
     run_start = datetime.now()
 
     last_energy = None
     iteration_count = 0
     def wrapped_cost_function(params):
         nonlocal last_energy, iteration_count
-        result = cost_function(params, paulis, coeffs, num_qubits, dev, ansatz, max_gate)
+        result = cost_function(params, paulis, coeffs, num_qubits, dev, ansatz, run_info["max_gate"])
 
         last_energy = result
         iteration_count +=1
 
-        neg = max(0.0, -(result + eps))
+        neg = max(0.0, -(result + run_info["eps"]))
 
-        return result + lam * (neg ** p)
+        return result + run_info["lam"] * (neg ** run_info["p"])
 
 
     def callback(xk, convergence=None):
@@ -88,7 +90,7 @@ def run_vqe(i, paulis, coeffs, run_info, log_enabled, log_dir):
     np.random.seed(seed)
     x0 = np.random.random(size=num_params)*2*np.pi
 
-    if use_bounds:
+    if run_info["use_bounds"]:
         bounds = [(0, 2 * np.pi) for _ in range(num_params)]
     else:
         bounds = [(None, None) for _ in range(num_params)]
@@ -104,7 +106,7 @@ def run_vqe(i, paulis, coeffs, run_info, log_enabled, log_dir):
                 x0,
                 bounds=bounds,
                 method= "COBYQA",
-                options= run_info["options"],
+                options= run_info["optimizer_options"],
                 callback=callback
             )
 
@@ -141,7 +143,7 @@ if __name__ == "__main__":
 
     shots = None
     use_bounds = False if shots == None else True
-    cutoff = 16
+    cutoff = 2
 
     lam = 15
     p = 2
@@ -215,6 +217,7 @@ if __name__ == "__main__":
                 "Potential":potential,
                 "cutoff": cutoff,
                 "ansatz_name": ansatz_name,
+                "max_gate": max_gate,
                 "num_qubits": num_qubits,
                 "num_paulis": len(paulis),
                 "num_params": num_params,
@@ -238,7 +241,7 @@ if __name__ == "__main__":
         vqe_results = pool.starmap(
             run_vqe,
             [
-                (i, paulis, coeffs, run_info, log_enabled, log_path)
+                (i, paulis, coeffs, ansatz, run_info, log_enabled, log_path)
                 for i in range(num_vqe_runs)
             ],
         )
