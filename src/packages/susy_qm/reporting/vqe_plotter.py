@@ -6,16 +6,16 @@ from typing import List, Tuple, Optional
 import logging
 import itertools
 from pathlib import Path
-from typing import Iterable, Dict, Any, List, Tuple, Optional, Literal
+from typing import Dict, Any, List, Tuple, Optional
 import os
 import json
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-from matplotlib.ticker import LogLocator, LogFormatterMathtext, FuncFormatter, SymmetricalLogLocator, MaxNLocator, NullFormatter
+from matplotlib.ticker import LogLocator, FuncFormatter, SymmetricalLogLocator
 from matplotlib.patches import Patch
 
-from susy_qm.vqe_metrics import VQESummary
+from .vqe_metrics import VQESummary
 
 import git
 repo_path = git.Repo('.', search_parent_directories=True).working_tree_dir
@@ -43,27 +43,6 @@ def format_axis(
 
     if scale == "linear":
         ax.set_xscale("linear")
-
-        # def fmt_linear(x, _):
-
-        #     if x == 0:
-        #         return "0"
-            
-        #     if abs(x) >= 1e3 or abs(x) < 1e-2:
-        #         exp = int(np.floor(np.log10(abs(x))))
-        #         coeff = x / (10**exp)
-        #         sgn = "-" if x < 0 else ""
-
-        #         if np.isclose(abs(coeff), 1.0, atol=1e-8):
-        #             return rf"${sgn}10^{{{exp}}}$"
-                
-        #         c = f"{coeff:.1f}".rstrip("0").rstrip(".")
-
-        #         return rf"${c}\times10^{{{exp}}}$"
-            
-        #     return f"{x:.4g}".rstrip("0").rstrip(".")
-        
-        # ax.xaxis.set_major_formatter(FuncFormatter(fmt_linear))
 
     elif scale == "symlog":
 
@@ -102,23 +81,12 @@ class BoxPlotter:
     cutoffs: List[int]
     shots_list: list[int]
     converged_only: bool = True
-    on_missing: str = "skip"  # "skip" | "nan"
-    debug: bool = False
 
     # ---------- loading ----------
     def _load(self, data_path: str, potential: str, cutoff: int, shots: int) -> Tuple[np.ndarray, float]:
         d_path = os.path.join(
             repo_path, data_path, str(shots), potential, f"{potential}_{cutoff}.json"
         )
-
-        # Always return (energies, min_eigenvalue)
-        if not os.path.exists(d_path):
-            if self.debug:
-                print(f"[missing] {d_path}")
-            if self.on_missing == "skip":
-                return np.array([], dtype=float), float("nan")
-            else:  # "nan"
-                return np.array([np.nan], dtype=float), float("nan")
 
         data = _load_json(d_path)
 
@@ -328,7 +296,7 @@ class BoxPlotter:
         
         if show_legend:
             #axes_arr[0, 0].legend(loc="upper right", fontsize=8, ncol=len(self.cutoffs))
-            axes_arr[0, 0].legend(loc="upper left", fontsize=12, ncol=1)
+            axes_arr[0, 0].legend(loc="upper left", fontsize=8, ncol=1)
 
         fig.tight_layout(pad=0.6)
         return fig, axes_arr
@@ -344,8 +312,6 @@ class VQEPlotter:
     potentials: List[str]
     cutoffs: List[int]
     converged_only: bool = True
-    on_missing: str = "skip"
-    debug: bool = False
 
     # ---------- loading ----------
     def _load(self, path: str) -> VQESummary:
@@ -353,9 +319,7 @@ class VQEPlotter:
             path,
             self.cutoffs,
             self.potentials,
-            converged_only=self.converged_only,
-            on_missing=self.on_missing,
-            debug=self.debug,
+            converged_only=self.converged_only
         )
 
     def _ensure_axes_grid(
@@ -385,7 +349,7 @@ class VQEPlotter:
         ax.xaxis.set_minor_locator(ticker.NullLocator())
 
 
-    def plot_delta_e_vs_cutoff_line(self, *, figsize=(12, 4), axes=None, linewidth=1.0, marker="^", markersize=4.0, metric='median', scale="symlog", linthresh=1.0, sharey=True):
+    def plot_delta_e_vs_cutoff_line(self, shots, *, figsize=(12, 4), axes=None, linewidth=1.0, marker="^", markersize=4.0, metric='median', scale="symlog", linthresh=1.0, sharey=True):
 
         markers = ["o", "s", "^", "D", "v", "P", "*", "X"]
         #marker_cycle = itertools.cycle(markers)
@@ -402,7 +366,8 @@ class VQEPlotter:
         for i, pot in enumerate(self.potentials):
             ax = axes_arr[i]
             for j, (label, path) in enumerate(self.data_paths):
-                summary = self._load(path)
+                d_path = os.path.join(path,str(shots))
+                summary = self._load(d_path)
                 if metric == 'median':
                     y = summary.delta_median_e[pot].reindex(self.cutoffs)
                 else:
@@ -511,7 +476,7 @@ class VQEPlotter:
             Patch(facecolor=label_to_color[lab], edgecolor=label_to_color[lab], alpha=alpha, label=lab)
             for lab in labels
         ]
-        if show_legend: axes_arr[0].legend(handles=legend_patches, loc="upper left", fontsize=12)
+        if show_legend: axes_arr[0].legend(handles=legend_patches, loc="upper left", fontsize=8)
 
         fig.tight_layout(pad=0.6)
         return fig, axes_arr

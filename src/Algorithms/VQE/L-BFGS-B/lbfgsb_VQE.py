@@ -38,22 +38,31 @@ def setup_logger(logfile_path, name, enabled=True):
     return logger
 
 
-def cost_function(params, paulis, coeffs, num_qubits, dev, ansatz, max_gate):
 
-    gates = ansatze.ansatz_by_gate(ansatz, params, num_qubits, max_gate=max_gate)
-       
-    @qml.qnode(dev)
-    def circuit():
-   
-        for gate in gates:
-            qml.apply(gate)   
+def cost_function(paulis, coeffs, ansatz, num_qubits, dev):
 
-        return [qml.expval(op) for op in paulis] 
+    def energy(params):
 
-    expvals = circuit()                 
-    energy = float(np.dot(coeffs, expvals)) 
+        @qml.qnode(dev)
+        def circuit(params):
+            ansatz(params, num_qubits)
+            return [qml.expval(op) for op in paulis]
 
-    return energy
+        expvals = circuit(params)                 
+        energy = pnp.dot(coeffs, expvals)
+            
+        return energy
+
+    grad_fn = qml.grad(energy)
+
+    def f_and_g(x):
+        x_pl = qml.numpy.array(x, requires_grad=True)
+        val = energy(x_pl)
+        grad = grad_fn(x_pl)
+        
+        return float(val), np.asarray(grad, dtype=float)
+
+    return f_and_g
 
     
 def run_vqe(i, paulis, coeffs, ansatz, run_info, log_enabled, log_dir):
@@ -69,23 +78,17 @@ def run_vqe(i, paulis, coeffs, ansatz, run_info, log_enabled, log_dir):
     dev = qml.device(run_info["device"], wires=num_qubits, shots=run_info["shots"], seed=seed)
     run_start = datetime.now()
 
-    last_energy = None
-    iteration_count = 0
-    def wrapped_cost_function(params):
-        nonlocal last_energy, iteration_count
-        result = cost_function(params, paulis, coeffs, num_qubits, dev, ansatz, run_info["max_gate"])
 
-        last_energy = result
-        iteration_count +=1
+    valgrad = cost_function(paulis, coeffs, ansatz, num_qubits, dev)
 
-        neg = max(0.0, -(result + run_info["eps"]))
+    def fun_and_jac(x):
+        energy, grad = valgrad(x) 
 
-        return result + run_info["lam"] * (neg ** run_info["p"])
+        neg = max(0.0, -(energy + run_info["eps"]))
+        e = energy + run_info["lam"] * (neg ** run_info["p"])
+        
+        return e, grad
 
-
-    def callback(xk, convergence=None):
-        if log_enabled and iteration_count % 10 == 0:
-            logger.info(f"Iteration {iteration_count}: Energy = {last_energy:.8f}")
 
     np.random.seed(seed)
     x0 = np.random.random(size=num_params)*2*np.pi
@@ -102,13 +105,13 @@ def run_vqe(i, paulis, coeffs, ansatz, run_info, log_enabled, log_dir):
 
     with qml.Tracker(dev) as tracker:
         res = minimize(
-                wrapped_cost_function,
-                x0,
-                bounds=bounds,
-                method= "COBYQA",
-                options= run_info["optimizer_options"],
-                callback=callback
-            )
+            fun_and_jac,
+            x0,
+            bounds=bounds,
+            method="L-BFGS-B",
+            jac=True,
+            options=run_info["optimizer_options"],
+        )
 
     run_end = datetime.now()
     run_time = run_end - run_start
@@ -143,7 +146,7 @@ if __name__ == "__main__":
 
     shots = None
     use_bounds = False if shots == None else True
-    cutoff = 2
+    cutoff = 4
 
     lam = 15
     p = 2
@@ -151,33 +154,16 @@ if __name__ == "__main__":
     # Optimizer
     num_vqe_runs = 1
     max_iter = 10000
-    initial_tr_radius = 0.2
-    final_tr_radius = 1e-8
+    tol = 1e-8
 
     optimizer_options = {
                     'maxiter':max_iter, 
-                    'maxfev':max_iter, 
-                    'initial_tr_radius':initial_tr_radius, 
-                    'final_tr_radius':final_tr_radius, 
-                    'scale':True, 
-                    'disp':False
+                    'tol':tol
                     }
 
 
-    ansatze_type = 'exact' #exact, Reduced, CD3, real_amplitudes
+    ansatz_name = 'real_amplitudes'
     num_layers = 1
-    max_gate=None # gate truncation
-        
-    if ansatze_type in ['exact', 'reduced']:
-        if potential == "QHO":
-            ansatz_name = f"CQAVQE_QHO_{ansatze_type}"
-        elif (potential != "QHO") and (cutoff <= 64):
-            ansatz_name = f"CQAVQE_{potential}{cutoff}_{ansatze_type}"
-        else:
-            ansatz_name = f"CQAVQE_{potential}16_{ansatze_type}"
-    else:
-        ansatz_name = ansatze_type
-
     ansatz = ansatze.get(ansatz_name)
     
     if potential == "AHO":
@@ -188,7 +174,6 @@ if __name__ == "__main__":
         eps = 0
 
     
-
     starttime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     base_path = os.path.join(repo_path, "data", str(shots), potential)
     os.makedirs(base_path, exist_ok=True)
@@ -201,13 +186,7 @@ if __name__ == "__main__":
     eigenvalues = np.sort(np.linalg.eig(H)[0])[:4]
     num_qubits = int(1 + np.log2(cutoff))
 
-    if ansatze_type in ['exact', 'reduced']:
-        num_params = ansatz.n_params
-    else:
-        num_params = ansatz.n_params(num_qubits,num_layers)
-
-    if max_gate is not None:
-        num_params = max_gate if num_params > max_gate else num_params
+    num_params = ansatz.n_params(num_qubits,num_layers)
     
     H_decomp = qml.pauli_decompose(H, wire_order=range(num_qubits))
     paulis = H_decomp.ops
@@ -217,7 +196,6 @@ if __name__ == "__main__":
                 "Potential":potential,
                 "cutoff": cutoff,
                 "ansatz_name": ansatz_name,
-                "max_gate": max_gate,
                 "num_qubits": num_qubits,
                 "num_paulis": len(paulis),
                 "num_params": num_params,
@@ -271,15 +249,11 @@ if __name__ == "__main__":
         "num_params": num_params,
         "exact_eigenvalues": [x.real.tolist() for x in eigenvalues],
         "ansatz": ansatz_name,
-        "max_gate":max_gate,
         "num_VQE": num_vqe_runs,
         "shots": shots,
         "Optimizer": {
-            "name": "COBYQA",
-            "maxiter": max_iter,
-            'maxfev': max_iter,
-            "initial_tr_radius": initial_tr_radius,
-            "final_tr_radius": final_tr_radius
+            "name": "L-BFGS-B",
+            "optimizer_options":optimizer_options,
         },
         "cost function":{
             "type": "small negatives",
