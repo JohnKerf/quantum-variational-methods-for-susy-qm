@@ -13,3 +13,13 @@ avqe.save_avqe_data()
 
 df = avqe.create_summary_table()
 df.to_latex(os.path.join(repo_path, r"paper_results_data\Table2&Fig7", "tab.tex"), index=False)
+
+
+
+folder_path = os.path.join(repo_path, r"paper_results_data\Table3")
+cutoffs = [2,4,8,16]
+potentials = ["DW","AHO"]
+
+avqe = AVQEProcessing(folder_path, potentials, cutoffs)
+shots=10000
+avqe.create_steps_table(shots)
