@@ -352,7 +352,6 @@ class VQEPlotter:
     def plot_delta_e_vs_cutoff_line(self, shots, *, figsize=(12, 4), axes=None, linewidth=1.0, marker="^", markersize=4.0, metric='median', scale="symlog", linthresh=1.0, sharey=True):
 
         markers = ["o", "s", "^", "D", "v", "P", "*", "X"]
-        #marker_cycle = itertools.cycle(markers)
         fig, axes_arr = self._ensure_axes_grid(figsize=figsize, existing_axes=axes, sharey=sharey)
 
         for ax in axes_arr:
@@ -360,8 +359,6 @@ class VQEPlotter:
                 ax.set_yscale("symlog", linthresh=linthresh)
             else:
                 ax.set_yscale(scale)
-            #ax.yaxis.set_major_locator(LogLocator(base=10.0))        
-            #ax.yaxis.set_major_formatter(LogFormatterMathtext(base=10))
 
         for i, pot in enumerate(self.potentials):
             ax = axes_arr[i]
@@ -373,7 +370,6 @@ class VQEPlotter:
                 else:
                     y = summary.delta_min_e[pot].reindex(self.cutoffs)
                 marker = markers[j]
-                #marker = next(marker_cycle)
                 ax.plot(self.cutoffs, y, linewidth=linewidth, marker=marker, markersize=markersize, label=label)
             ax.set_title(pot)
             ax.grid(True)
@@ -383,18 +379,9 @@ class VQEPlotter:
             elif sharey:
                 ax.tick_params(axis="y", left=False, labelleft=False)
 
-        def fmt_sigfig(x, _):
-            return f"{x:.3g}"
-        formatter = FuncFormatter(fmt_sigfig)
-
-        #for ax in axes_arr:
-        #    yticks = ax.get_yticks()
-        #    ax.set_yticks([tick for tick in yticks if tick >= 0])
-        #    ax.yaxis.set_major_formatter(formatter)
        
-
         axes_arr[len(self.potentials) // 2].set_xlabel(r"$\Lambda$")
-        axes_arr[0].legend(loc="upper left", fontsize=12)
+        axes_arr[0].legend(loc="upper left", fontsize=8)
         fig.tight_layout(pad=0.6)
         return fig, axes_arr
     
@@ -402,6 +389,7 @@ class VQEPlotter:
     def plot_evals_vs_cutoff_box(
         self,
         *,
+        shots=None,
         axes=None,
         box_width: float = 0.25,
         group_spacing: float = 1.8,
@@ -428,11 +416,12 @@ class VQEPlotter:
 
         for ax, pot in zip(axes_arr, self.potentials):
             for i, (lab, path) in enumerate(self.data_paths):
+                d_path = os.path.join(path,str(shots))
                 offset = (i - (n_labels - 1) / 2.0) * box_width
                 positions = x + offset
 
                 # gather distributions per cutoff in order
-                summary = self._load(path)
+                summary = self._load(d_path)
                 data_per_cutoff = []
                 for c in self.cutoffs:
                     dist = summary.get("evals_dist", pot, c)

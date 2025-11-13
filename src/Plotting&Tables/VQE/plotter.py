@@ -9,6 +9,31 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=RuntimeWarning)
 
+cutoffs = [2,4,8,16]
+potentials = ["QHO", "AHO","DW"]
+shots_list = [None,10000]
+
+data_paths = [
+    ("L-BFGS-B", r"paper_results_data\Figs5&6\L-BFGS-B"),
+    ("COBYLA", r"paper_results_data\Figs5&6\COBYLA"),
+    ("COBYQA", r"paper_results_data\Figs5&6\COBYQA"),
+    ("Differential Evolution", r"paper_results_data\Figs5&6\Differential Evolution")
+]
+
+vqe_plotter = VQEPlotter(data_paths, potentials, cutoffs)
+
+vqe_plotter.plot_delta_e_vs_cutoff_line(shots=None, metric='median', scale="symlog", linthresh=1e-1, sharey=True)
+plt.savefig(os.path.join(repo_path,r"Figures","Fig5_1"))
+vqe_plotter.plot_evals_vs_cutoff_box(shots=None, show_legend=False, show_title=False)
+plt.savefig(os.path.join(repo_path,r"Figures","Fig5_2"))
+
+vqe_plotter.plot_delta_e_vs_cutoff_line(shots=10000, metric='median', scale="symlog", linthresh=1e-1, sharey=True)
+plt.savefig(os.path.join(repo_path,r"Figures","Fig6_1"))
+vqe_plotter.plot_evals_vs_cutoff_box(shots=10000, show_legend=False, show_title=False)
+plt.savefig(os.path.join(repo_path,r"Figures","Fig6_2"))
+
+
+
 
 cutoffs = [2,4,8,16,32,64]
 potentials = ["QHO", "AHO","DW"]
@@ -20,13 +45,17 @@ data_paths=[
         ("Real Amplitudes", r"paper_results_data\Figs9-12\Real Amplitudes"),
     ]
 
-line_plotter = VQEPlotter(data_paths, potentials, cutoffs)
+vqe_plotter = VQEPlotter(data_paths, potentials, cutoffs)
 
-line_plotter.plot_delta_e_vs_cutoff_line(shots=None, metric='median', scale="symlog", linthresh=1e-1, sharey=True)
-plt.savefig(os.path.join(repo_path,r"Figures","Fig9"))
+vqe_plotter.plot_delta_e_vs_cutoff_line(shots=None, metric='median', scale="symlog", linthresh=1e-1, sharey=True)
+plt.savefig(os.path.join(repo_path,r"Figures","Fig9_1"))
+vqe_plotter.plot_evals_vs_cutoff_box(shots=None, show_legend=False, show_title=False)
+plt.savefig(os.path.join(repo_path,r"Figures","Fig9_2"))
 
-line_plotter.plot_delta_e_vs_cutoff_line(shots=10000, metric='median', scale="symlog", linthresh=1e-1, sharey=True)
-plt.savefig(os.path.join(repo_path,r"Figures","Fig10"))
+vqe_plotter.plot_delta_e_vs_cutoff_line(shots=10000, metric='median', scale="symlog", linthresh=1e-1, sharey=True)
+plt.savefig(os.path.join(repo_path,r"Figures","Fig10_1"))
+vqe_plotter.plot_evals_vs_cutoff_box(shots=10000, show_legend=False, show_title=False)
+plt.savefig(os.path.join(repo_path,r"Figures","Fig10_2"))
 
 
 
