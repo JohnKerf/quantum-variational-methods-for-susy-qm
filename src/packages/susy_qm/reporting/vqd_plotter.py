@@ -18,9 +18,6 @@ def _load_json(fp: Path) -> Dict[str, Any]:
 
 @dataclass(slots=True)
 class VQDPlotter:
-    """
-    Helper for plotting VQE summary metrics from one or more data sources.
-    """
     data_path: Path
     potentials: List[str]
     cutoff: int
@@ -97,7 +94,7 @@ class VQDPlotter:
             bottom = 0 if ymin > 0 else ymin
             ax.set_ylim(bottom=bottom, top=ymax + buffer)
 
-            # exact energy legend (upper right)
+            # exact energy legend
             exact_handles = [
                 Line2D([], [], color=color_map[i], linestyle='--', linewidth=0.5,
                     label=f"$E_{{{i}}}^{{\\text{{ex}}}} = {exact_eigenvalues[i]:.3f}$")
@@ -107,7 +104,7 @@ class VQDPlotter:
                                 markerscale=0.7, loc='upper right')
             ax.add_artist(legend1)
 
-            # energy level indicators (top left)
+            # energy level indicators
 
             energy_level_indicators = [
                 Line2D([], [], marker=marker_styles[i],

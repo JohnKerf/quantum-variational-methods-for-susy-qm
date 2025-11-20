@@ -90,13 +90,12 @@ class BoxPlotter:
 
         data = _load_json(d_path)
 
-        # exact eigenvalues (robust if missing/empty)
+        # exact eigenvalues
         exact = data.get("exact_eigenvalues", [])
         if exact is None or len(exact) == 0:
             min_eigenvalue = float("nan")
         else:
             exact_eigenvalues = np.asarray(exact, dtype=float)
-            # use nanmin in case any NaNs are present
             min_eigenvalue = float(np.nanmin(exact_eigenvalues))
 
         results = np.asarray(data.get("results", []), dtype=float)
@@ -120,19 +119,19 @@ class BoxPlotter:
     @staticmethod
     def _as_2d_axes(axs, nr: int, nc: int):
         """Return axes as a 2D ndarray with shape (nr, nc)."""
-        # Single Axes
-        if hasattr(axs, "plot"):  # isinstance(axs, plt.Axes) but robust
+        
+        if hasattr(axs, "plot"):
             return np.array([[axs]])
         arr = np.asarray(axs)
-        if arr.ndim == 0:  # single Axes wrapped oddly
+        if arr.ndim == 0:  
             return np.array([[arr.item()]])
         if arr.ndim == 1:
-            # If we asked for (nr, nc), decide orientation
+            
             if nr == 1 and arr.size == nc:
                 return arr.reshape(1, nc)
             if nc == 1 and arr.size == nr:
                 return arr.reshape(nr, 1)
-            # Fallback: assume row vector
+            
             return arr.reshape(1, -1)
         return arr  # already 2D
 
@@ -175,7 +174,6 @@ class BoxPlotter:
         Boxplots of energy distributions per cutoff, for each (potential, shots).
         - y-axis: cutoff labels
         - panels: one per potential × shots combination
-        - COLORS: assigned by cutoff and kept consistent across subplots
         """
         by_dataset = False if type(data_paths)==str else True
         ncols = len(data_paths) if by_dataset else len(self.shots_list)  
@@ -183,7 +181,7 @@ class BoxPlotter:
 
         fig, axes_arr = self._ensure_axes_grid(ncols=ncols, existing_axes=axes, sharey=True, figsize=(12, 8))
 
-        # consistent colors per cutoff across ALL subplots
+        # consistent colors per cutoff across subplots
         palette = plt.rcParams["axes.prop_cycle"].by_key()["color"]
         cutoff_to_color = {c: palette[i % len(palette)] for i, c in enumerate(self.cutoffs)}
 
@@ -199,7 +197,7 @@ class BoxPlotter:
 
                 ax = axes_arr[i, j]
 
-                # gather energy arrays per cutoff (ensure non-empty arrays so boxplot won't crash)
+                # energy arrays per cutoff
                 energies_per_cutoff = []
                 min_eigenvalues = []
                 for cutoff in self.cutoffs:
@@ -223,7 +221,6 @@ class BoxPlotter:
                 else:
                     scale = "symlog"
 
-                #scale="linear"
                     
                 # draw horizontal boxplots
                 bp = ax.boxplot(
@@ -243,7 +240,7 @@ class BoxPlotter:
                 for label in ax.get_yticklabels():
                     label.set_fontweight('normal')
 
-                # color each box (and its whiskers/caps/median) by cutoff
+                # colour each box (and its whiskers/caps/median) by cutoff
                 n = len(self.cutoffs)
                 for k, cutoff in enumerate(self.cutoffs):
                     colour = cutoff_to_color[cutoff]
@@ -252,13 +249,13 @@ class BoxPlotter:
                     box.set_facecolor(colour)
                     box.set_edgecolor(colour)
                     box.set_alpha(alpha)
-                    # whiskers: two per box (2k, 2k+1)
+                    # whiskers
                     for w in (bp["whiskers"][2*k], bp["whiskers"][2*k + 1]):
                         w.set_color(colour)
-                    # caps: two per box (2k, 2k+1)
+                    # caps
                     for c in (bp["caps"][2*k], bp["caps"][2*k + 1]):
                         c.set_color(colour)
-                    # median: one per box (k)
+                    
                     bp["medians"][k].set_color(colour)
 
                     if k < len(bp["fliers"]):
@@ -410,7 +407,7 @@ class VQEPlotter:
         labels = [lab for lab, _ in self.data_paths]
         n_labels = len(labels)
 
-        # consistent colors per label, from Matplotlib default cycle
+        # consistent colors per label
         palette = plt.rcParams["axes.prop_cycle"].by_key()["color"]
         label_to_color = {lab: palette[i % len(palette)] for i, lab in enumerate(labels)}
 
@@ -420,12 +417,11 @@ class VQEPlotter:
                 offset = (i - (n_labels - 1) / 2.0) * box_width
                 positions = x + offset
 
-                # gather distributions per cutoff in order
+                # distributions per cutoff
                 summary = self._load(d_path)
                 data_per_cutoff = []
                 for c in self.cutoffs:
                     dist = summary.get("evals_dist", pot, c)
-                    # ensure it's a list/array (may be empty)
                     data_per_cutoff.append(np.asarray(dist, dtype=float))
 
                 bp = ax.boxplot(

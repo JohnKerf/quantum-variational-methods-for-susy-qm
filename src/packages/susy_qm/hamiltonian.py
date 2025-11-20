@@ -1,6 +1,4 @@
 import numpy as np
-from scipy.sparse import eye, kron, coo_matrix
-from functools import reduce
 
 #############################################################################
                            #p and q in HO basis

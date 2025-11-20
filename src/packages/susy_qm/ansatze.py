@@ -1,5 +1,4 @@
 import pennylane as qml
-import pennylane.numpy as pnp
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 import numpy as np
@@ -175,54 +174,6 @@ def real_amplitudes(params, num_qubits, num_layers=1, circular=True):
 
 real_amplitudes.name = "real_amplitudes"
 real_amplitudes.n_params = lambda num_qubits, num_layers=1, **_: num_qubits * (num_layers + 1)
-
-
-
-################### efficientSU2 ####################    
-def efficientSU2(params, num_qubits, circular=True):
-    
-    n = num_qubits-1
-    wires = range(num_qubits)
-
-    params_idx = 0
-    for w in wires:
-        qml.RY(params[params_idx], wires=w)
-        params_idx +=1
-
-    params_idx = 0
-    for w in wires:
-        qml.RZ(params[params_idx], wires=w)
-        params_idx +=1
-        
-
-    if num_qubits > 1:
-        for i in range(1, num_qubits):
-            qml.CNOT(wires=[wires[i-1], wires[i]])
-
-        if circular: qml.CNOT(wires=[wires[-1], wires[0]])
-
-    for w in wires:
-        qml.RY(params[params_idx], wires=w)
-        params_idx +=1
-
-    for w in wires:
-        qml.RZ(params[params_idx], wires=w)
-        params_idx +=1
-
-efficientSU2.name = "efficientSU2"
-efficientSU2.n_params = lambda num_qubits, num_layers=1, **_: 2*num_qubits*(num_layers+1)
-
-
-def strongly_entangling_layers(params, num_qubits, num_layers=1):
-
-   params = pnp.tensor(params)
-   shape = qml.StronglyEntanglingLayers.shape(n_layers=num_layers, n_wires=num_qubits)
-   weights = params.reshape(shape)
-
-   qml.StronglyEntanglingLayers(weights=weights, wires=range(num_qubits))
-   
-strongly_entangling_layers.name = "strongly_entangling_layers"
-strongly_entangling_layers.n_params = lambda num_qubits, num_layers=1, **_: 3*num_qubits*num_layers
 
 
 
@@ -597,110 +548,6 @@ def CQAVQE_AHO16_Reduced(params, num_qubits, include_fermion=True):
 CQAVQE_AHO16_Reduced.n_params = 4
 CQAVQE_AHO16_Reduced.name = "CQAVQE_AHO16_Reduced"
 
-
-
-
-################### COBYQA Adaptive-VQE circuit depth Ansatze ####################      
-'''
-Reduced Ansatze by limiting circuit depth
-'''
-################### DW ###################
-def CQAVQE_DW16_CD3(params, num_qubits):
-    #CD1
-    qml.RY(params[0], wires=[num_qubits-1])
-    qml.RY(params[1], wires=[num_qubits-3])
-    qml.RY(params[2], wires=[num_qubits-4])
-    #CD2
-    qml.CRY(params[3], wires=[num_qubits-1, num_qubits-2])
-    #CD3
-    qml.RY(params[4], wires=[num_qubits-2])
-    qml.CRY(params[5], wires=[num_qubits-1, num_qubits-3])
-
-CQAVQE_DW16_CD3.n_params = 6
-CQAVQE_DW16_CD3.name = "CQAVQE_DW16_CD3"
-
-
-def CQAVQE_DW32_CD3(params, num_qubits):
-    #CD1
-    qml.RY(params[0], wires=[num_qubits-1])
-    qml.RY(params[1], wires=[num_qubits-3])
-    qml.RY(params[2], wires=[num_qubits-4])
-    #CD2
-    qml.CRY(params[3], wires=[num_qubits-1, num_qubits-2])
-    #CD3
-    qml.RY(params[4], wires=[num_qubits-2])
-    qml.CRY(params[5], wires=[num_qubits-1, num_qubits-3])
-
-CQAVQE_DW32_CD3.n_params = 6
-CQAVQE_DW32_CD3.name = "CQAVQE_DW32_CD3"
-
-
-def CQAVQE_DW64_CD3(params, num_qubits):
-    #CD1
-    qml.RY(params[0], wires=[num_qubits-1])
-    qml.RY(params[1], wires=[num_qubits-3])
-    qml.RY(params[2], wires=[num_qubits-4])
-    #CD2
-    qml.CRY(params[3], wires=[num_qubits-1, num_qubits-2])
-    #CD3
-    qml.RY(params[4], wires=[num_qubits-2])
-    qml.CRY(params[5], wires=[num_qubits-1, num_qubits-3])
-
-CQAVQE_DW64_CD3.n_params = 6
-CQAVQE_DW64_CD3.name = "CQAVQE_DW64_CD3"
-
-
-################### AHO ###################
-
-def CQAVQE_AHO16_CD3(params, num_qubits):
-    basis = [1] + [0]*(num_qubits-1)
-    qml.BasisState(basis, wires=range(num_qubits))
-    #CD1
-    qml.RY(params[0], wires=[num_qubits-2])
-    qml.RY(params[1], wires=[num_qubits-3])
-    qml.RY(params[2], wires=[num_qubits-4])
-    #CD2
-    qml.CRY(params[3], wires=[num_qubits-2, num_qubits-3])
-    #CD3
-    qml.CRY(params[4], wires=[num_qubits-2, num_qubits-4])
-
-CQAVQE_AHO16_CD3.n_params = 5
-CQAVQE_AHO16_CD3.name = "CQAVQE_AHO16_CD3"
-
-
-def CQAVQE_AHO32_CD3(params, num_qubits):
-    basis = [1] + [0]*(num_qubits-1)
-    qml.BasisState(basis, wires=range(num_qubits))
-    #CD1
-    qml.RY(params[0], wires=[num_qubits-2])
-    qml.RY(params[1], wires=[num_qubits-3])
-    qml.RY(params[2], wires=[num_qubits-4])
-    qml.RY(params[3], wires=[num_qubits-5])
-    #CD2
-    qml.CRY(params[4], wires=[num_qubits-2, num_qubits-3])
-    #CD3
-    qml.CRY(params[5], wires=[num_qubits-2, num_qubits-4])
-
-CQAVQE_AHO32_CD3.n_params = 6
-CQAVQE_AHO32_CD3.name = "CQAVQE_AHO32_CD3"
-
-
-def CQAVQE_AHO64_CD3(params, num_qubits):
-    basis = [1] + [0]*(num_qubits-1)
-    qml.BasisState(basis, wires=range(num_qubits))
-    #CD1
-    qml.RY(params[0], wires=[num_qubits-2])
-    qml.RY(params[1], wires=[num_qubits-3])
-    qml.RY(params[2], wires=[num_qubits-4])
-    qml.RY(params[3], wires=[num_qubits-5])
-    qml.RY(params[4], wires=[num_qubits-6])
-    #CD2
-    qml.CRY(params[5], wires=[num_qubits-2, num_qubits-3])
-    #CD3
-    qml.CRY(params[6], wires=[num_qubits-2, num_qubits-4])
-
-CQAVQE_AHO64_CD3.n_params = 7
-CQAVQE_AHO64_CD3.name = "CQAVQE_AHO64_CD3"
 
         
     

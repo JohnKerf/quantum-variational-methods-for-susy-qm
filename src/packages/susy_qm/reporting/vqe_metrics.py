@@ -18,12 +18,11 @@ __all__ = ["VQESummary"]
 logger = logging.getLogger(__name__)
 
 
-# ---------- small helpers ----------
 def _safe_total_seconds(x: Any) -> float:
     """Convert timedelta-like (str/pandas Timedelta) to total seconds; NaN on failure."""
     try:
         return pd.to_timedelta(x).total_seconds()
-    except Exception:  # noqa: BLE001
+    except Exception:
         return float("nan")
 
 
@@ -58,7 +57,7 @@ class VQESummary:
       - Dict of distributions: summary.evals_dist_map[("DW", 16)]
       - Plot-friendly pivots: summary.times, summary.time_bars, summary.evals_stats, summary.delta_e
     """
-    df: pd.DataFrame  # columns: potential, cutoff, mean_time_s, lower_std_s, upper_std_s, ...
+    df: pd.DataFrame
 
     # ----------------- Constructors -----------------
     @classmethod
@@ -71,7 +70,7 @@ class VQESummary:
         converged_only: bool = True,
         on_missing: Literal["error", "skip"] = "error",
         debug: bool = False,
-    ) -> "VQESummary":
+    ) -> VQESummary:
         """
         Build summary from a directory layout: {path}/{potential}/{potential}_{cutoff}.json
         Always expects an "num_evaluations" field in JSON.
@@ -243,7 +242,7 @@ class VQESummary:
         converged_only: bool = True,
     ) -> np.ndarray:
         """
-        Return the selected result array (`sel`) for a given (potential, cutoff),
+        Return the selected result array for a given (potential, cutoff),
         matching the same logic used in from_path().
         """
         # Locate the corresponding source file
