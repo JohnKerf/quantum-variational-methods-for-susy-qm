@@ -200,7 +200,7 @@ if __name__ == "__main__":
 
     
     starttime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    base_path = os.path.join(repo_path, "data", str(shots), potential)
+    base_path = os.path.join(repo_path, r"scratch_data\vqe", str(shots), potential)
     os.makedirs(base_path, exist_ok=True)
 
     log_path = os.path.join(base_path, f"logs_{str(cutoff)}")
