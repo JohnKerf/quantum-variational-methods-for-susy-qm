@@ -44,6 +44,8 @@ pip install -e .
 
 Running this code will ensure all of the relevant packages are installed making the code contained in the repo runs as intended.
 
+*Note - there is a known issue with scipy version 1.16 causing some issues with the Appendix and Intro code in `src/plotting&tables/intro&appendix`. If you encounter errors when trying to run this code try downgrading scipy to version 1.15.
+
 ---
 
 ## Data
@@ -178,6 +180,15 @@ The `src/plotting&tables/` directory contains scripts that read the JSON files i
     - This uses the `VQDTables` class from `src/susy_qm/reporting/vqd_tables` 
     - Table 5 is created using `VQDTables.create_beta_comp_table`
     - Table 6 & 7 are created using `VQDTables.create_ratio_table`
+
+
+### Intro & Appendix
+
+The `src/plotting&tables/intro&appendix` directory contains notebooks for reproducing plots and tables in the introduction and appendix of the paper. For this code `src\plotting&tables\Intro&Appendix\Hamiltonian_SQM\Hamiltonian_SQM_0p1.py` is used to create the Hamiltonian instead of the susy_qm package that was used for the rest of the paper.
+
+- `pauli_strings_counts.ipynb` is used to create table 1 and figure 4
+- `E_spectrum_lambda_.ipynb` is used to create figure 14
+- `energy_spectrum_vs_g_.ipynb` is used to create figure 15
     
 ---
 
