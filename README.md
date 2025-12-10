@@ -1,8 +1,8 @@
-# Quantum Variational Methods for Supersymmetric Quantum Mechanics
+# Quantum Variational Methods for Supersymmetric Quantum Mechanics --- data release
 
-This repository contains the research code accompanying the paper https://doi.org/10.48550/arXiv.2510.26506
+This repository contains the data and code used for [arXiv:2510.26506](https://doi.org/10.48550/arXiv.2510.26506)
 
-> **Quantum Variational Methods for Supersymmetric Quantum Mechanics**  
+> **Quantum Variational Methods for Supersymmetric Quantum Mechanics**
 > J. Kerfoot, E. Mendicelli, D. Schaich
 
 We employ quantum variational methods to investigate a single-site interacting fermion–boson system—an example of a minimal supersymmetric model that can exhibit spontaneous supersymmetry breaking. By using adaptive variational techniques, we identify optimal ansätze that scale efficiently, allowing for reliable identification of spontaneous supersymmetry breaking. This work lays a foundation for future quantum computing investigations of more complex and physically rich fermion–boson quantum field theories in higher dimensions.
@@ -16,7 +16,7 @@ We employ quantum variational methods to investigate a single-site interacting f
 ├── data/                # Reference data used in the paper
 ├── src/
 │   ├── algorithms/      # Implementations of variational algorithms (VQE, AVQE, VQD)
-│   ├── plotting&tables/ # Scripts to generate plots and tables used in the paper
+│   ├── plotting+tables/ # Scripts to generate plots and tables used in the paper
 │   └── susy_qm/         # Custom python package containing Hamiltonian, ansatze and reporting methods
 ├── pyproject.toml       # Build & dependency configuration
 ├── LICENSE              # MIT license
@@ -27,7 +27,7 @@ We employ quantum variational methods to investigate a single-site interacting f
 
 ## Installation
 
-The project is packaged via pyproject.toml and can be installed using the below code.
+The project is packaged via pyproject.toml and can be installed using the following commands.
 
 ```python
 git clone https://github.com/JohnKerf/quantum-variational-methods-for-susy-qm.git
@@ -42,9 +42,9 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-Running this code will ensure all of the relevant packages are installed making the code contained in the repo runs as intended.
+Running these commands will ensure all of the relevant packages are installed so that the code contained in the repository runs as intended.
 
-*Note - there is a known issue with scipy version 1.16 causing some issues with the Appendix and Intro code in `src/plotting&tables/intro&appendix`. If you encounter errors when trying to run this code try downgrading scipy to version 1.15.
+*Note - scipy version 1.16 may cause some issues with the Appendix and Intro code in `src/plotting+tables/intro+appendix`. If you encounter errors when trying to run this code try downgrading scipy to version 1.15.
 
 ---
 
@@ -77,13 +77,13 @@ These files are read directly by the scripts in src/plotting&tables to recreate 
 ---
 
 ## Algorithms
-The `src/algorithms/` directory contains implementations of the three variational quantum algorithms studied in the paper. Each subfolder corresponds to one algorithm and contains a .py file that can be ran. Each file contains variables that can be configured to alter the run outcomes. Variables can be taken from the files in `data/` to replicate runs.  
+The `src/algorithms/` directory contains implementations of the three variational quantum algorithms studied in the paper. Each subfolder corresponds to one algorithm and contains a .py file that can be ran. Each file contains variables that can be configured to alter the run outcomes. Variables can be taken from the files in `data/` to replicate runs.
 
 ### Variational Quantum Eigensolver (VQE)
 
-Within `src/algorithms/VQE` there are separate folders for each of the optimisers that were tested. 
+Within `src/algorithms/VQE` there are separate folders for each of the optimisers that were tested.
 
-- L-BFGS-B - local, gradient based 
+- L-BFGS-B - local, gradient based
 - Differential Evolution - global, stochastic and gradient-free
 - COBYLA - local, gradient-free (linear approximation)
 - COBYQA - local, gradient-free (quadratic approximation)
@@ -104,7 +104,7 @@ Code implementation:
 
 ### Adaptive-VQE (AVQE)
 
-Within `src/algorithms/AVQE` there is a single `avqe.py` file that can be run to produce the avqe results. 
+Within `src/algorithms/AVQE` there is a single `avqe.py` file that can be run to produce the avqe results.
 
 Code implementation:
 
@@ -116,14 +116,14 @@ Code implementation:
 6. For each operator in the pool, calculate the gradient using the `compute_grad` function
 7. Add to `op_list` the operator which resulted in the largest gradient (`max_op`). `op_list` is then used to construct the ansatz in the vqe step.
 8. The vqe process is done using `scipy.optimize.minimize` which iteratively calls `wrapped_cost_function` which in turn calls the `cost_function` that ultimately computes the expectation energy using the ansatz constructed from `op_list`. `x0` (the intital set of parameters) is constructed using previous optimal parameters `op_params` from the previous step.
-9. `max_op` is removed from the pool once it has been used and is only re-added after a 2-qubit (CRY) gate has been implemented with the qubit. This prevents redundant gates from being added. 
+9. `max_op` is removed from the pool once it has been used and is only re-added after a 2-qubit (CRY) gate has been implemented with the qubit. This prevents redundant gates from being added.
 10. This process will happen until either the optimizer converges or until `num_steps` is reached.
 11. Data is then stored and saved in json format
 
 
 ### Variational Quantum Deflation (VQD)
 
-Within `src/algorithms/VQD` there is a sinlge `vqd.py` file that can be ran to produce the vqd results. 
+Within `src/algorithms/VQD` there is a sinlge `vqd.py` file that can be ran to produce the vqd results.
 
 Code implementation:
 
@@ -150,34 +150,34 @@ The `src/plotting&tables/` directory contains scripts that read the JSON files i
 - This directory contains a `plotter.py` file that creates the plots for figures 5, 6, 9, 10, 11 and 12.
 - Plots are created using the `BoxPlotter` and `VQEPlotter` classes from `src/susy_qm/reporting/vqe_plotter`.
 - These classes are initiated with `data_paths`, `potentials` and  `cutoffs` where `data_paths` is a list of data to be plotted and is in the form [(label, folder path)] where label is the label that is shown in the legend on the plot.
-    - Figures 9.1 and 10.1 (E Vs Cutoff) are plotted using  `VQEPlotter.plot_delta_e_vs_cutoff_line` 
-    - Figures 9.2 and 10.2 (Number of evaluations) are plotted using `VQEPlotter.plot_evals_vs_cutoff_box` 
+    - Figures 9.1 and 10.1 (E Vs Cutoff) are plotted using  `VQEPlotter.plot_delta_e_vs_cutoff_line`
+    - Figures 9.2 and 10.2 (Number of evaluations) are plotted using `VQEPlotter.plot_evals_vs_cutoff_box`
     - Figures 11 and 12 Box plots are plotted using `BoxPlotter.plot_energy_boxplot`
 
 
 ### Adaptive-VQE (AVQE)
 
-`src/plotting&tables/AVQE/` 
+`src/plotting&tables/AVQE/`
 
 - The directory contains a `plotter.py` file that creates the plot for figure 7
     - Uses the AVQE data obtained from running the `avqe.py` algorithm to plot VQE energy at each step of the algorithm
 
 - The directory contains a `tables.py` file that creates Tables 2 and 3.
-    - This uses the `AVQEProcessing` class from `src/susy_qm/reporting/avqe` 
+    - This uses the `AVQEProcessing` class from `src/susy_qm/reporting/avqe`
     - Table 2 is created using `AVQEProcessing.create_summary_table`
     - Table 3 is created using `AVQEProcessing.create_steps_table`
 
 
 ### Variational Quantum Deflation (VQD)
 
-`src/plotting&tables/VQD/` 
+`src/plotting&tables/VQD/`
 
 - The directory contains a `plotter.py` file that creates the plot for figure 13
     - Uses the VQD data obtained from running the `vqd.py` algorithm to plot the VQE energies for each energy level within an individual VQD run.
     - Plots are created using the `VQDPlotter` class from `src/susy_qm/reporting/vqd_plotter`.
 
 - The directory contains a `tables.py` file that creates Tables 5, 6 and 7.
-    - This uses the `VQDTables` class from `src/susy_qm/reporting/vqd_tables` 
+    - This uses the `VQDTables` class from `src/susy_qm/reporting/vqd_tables`
     - Table 5 is created using `VQDTables.create_beta_comp_table`
     - Table 6 & 7 are created using `VQDTables.create_ratio_table`
 
@@ -189,7 +189,7 @@ The `src/plotting&tables/intro&appendix` directory contains notebooks for reprod
 - `pauli_strings_counts.ipynb` is used to create table 1 and figure 4
 - `E_spectrum_lambda_.ipynb` is used to create figure 14
 - `energy_spectrum_vs_g_.ipynb` is used to create figure 15
-    
+
 ---
 
 ## susy_qm package
@@ -208,7 +208,7 @@ This module also contains utilities:
 
 - `.get` is used to retrieve the desired circuit. e.g. .get(CQAVQE_DW4_exact)
 - `.gate_list_from_ansatz` is used to retrieve a list of [{gate, wires, param}] for a quantum circuit
-- `.ansatz_by_gate` is used to return an ansatz gate-by-gate and is what is used to truncate a quantum circuit to a `max_gate`  
+- `.ansatz_by_gate` is used to return an ansatz gate-by-gate and is what is used to truncate a quantum circuit to a `max_gate`
 
 ### hamiltonian
 
@@ -219,7 +219,7 @@ This module contains the `calculate_Hamiltonian` function that is used to create
 This directory contains the modules used in the plotting&tables code.
 
 The `avqe.py` file contains the `AVQEProcessing` class.
-- `find_optimal_circuit` is used to find the best circuit out of the multiple AVQE runs 
+- `find_optimal_circuit` is used to find the best circuit out of the multiple AVQE runs
 - `optimal_circuit_diagram` is used to create the circuit diagram for a circuit
 - `save_avqe_data` saves both the json and circuit diagram
 - `create_summary_table` is used to create table 2 in the paper
@@ -240,7 +240,7 @@ The `vqe_metrics.py` file contains the `VQESummary` class.
 - There are several getters to retrieve different forms of the aggregated data
 
 The `vqe_plotter.py` uses the `VQESummary` class from `vqe_metrics.py` and also contains the `VQEPlotter` and `BoxPlotter` classes.
-- `format_axis` is helper to consistently style the axes  
+- `format_axis` is helper to consistently style the axes
 - `VQEPlotter` uses the aggregated data from `VQESummary`
     -  `plot_delta_e_vs_cutoff_line` plots the error (absolute difference to exact) vs cutoff for each dataset. This is used to create figures 9.1 and 10.1
     -  `plot_evals_vs_cutoff_box` grouped boxplots per dataset for the number of evaluations vs cutoff. This is used to create figures 9.2 and 10.2
