@@ -15,8 +15,8 @@ We employ quantum variational methods to investigate a single-site interacting f
 .
 ├── data/                # Reference data used in the paper
 ├── src/
-│   ├── algorithms/      # Implementations of variational algorithms (VQE, AVQE, VQD)
-│   ├── plotting+tables/ # Scripts to generate plots and tables used in the paper
+│   ├── Algorithms/      # Implementations of variational algorithms (VQE, AVQE, VQD)
+│   ├── Plotting+tables/ # Scripts to generate plots and tables used in the paper
 │   └── susy_qm/         # Custom python package containing Hamiltonian, ansatze and reporting methods
 ├── pyproject.toml       # Build & dependency configuration
 ├── LICENSE              # MIT license
@@ -44,7 +44,7 @@ pip install -e .
 
 Running these commands will ensure all of the relevant packages are installed so that the code contained in the repository runs as intended.
 
-*Note - scipy version 1.16 may cause some issues with the Appendix and Intro code in `src/plotting+tables/intro+appendix`. If you encounter errors when trying to run this code try downgrading scipy to version 1.15.
+*Note - scipy version 1.16 may cause some issues with the Appendix and Intro code in `src/Plotting+Tables/Intro+Appendix`. If you encounter errors when trying to run this code try downgrading scipy to version 1.15.
 
 ---
 
@@ -72,19 +72,19 @@ The `data/` directory contains all numerical results used in the paper.
 
     - Convergence information (number of iterations, number of evaluations, run times,...)
 
-These files are read directly by the scripts in src/plotting&tables to recreate the figures and tables within the paper.
+These files are read directly by the scripts in src/Plotting+Tables to recreate the figures and tables within the paper.
 
 ---
 
 ## Algorithms
-The `src/algorithms/` directory contains implementations of the three variational quantum algorithms studied in the paper. Each subfolder corresponds to one algorithm and contains a .py file that can be ran. Each file contains variables that can be configured to alter the run outcomes. Variables can be taken from the files in `data/` to replicate runs.
+The `src/Algorithms/` directory contains implementations of the three variational quantum algorithms studied in the paper. Each subfolder corresponds to one algorithm and contains a .py file that can be run. Each file contains variables that can be configured to alter the run outcomes. Variables can be taken from the files in `data/` to replicate runs.
 
 ### Variational Quantum Eigensolver (VQE)
 
-Within `src/algorithms/VQE` there are separate folders for each of the optimisers that were tested.
+Within `src/Algorithms/VQE` there are separate folders for each of the optimisers that were tested.
 
 - L-BFGS-B - local, gradient based
-- Differential Evolution - global, stochastic and gradient-free
+- Differential_Evolution - global, stochastic and gradient-free
 - COBYLA - local, gradient-free (linear approximation)
 - COBYQA - local, gradient-free (quadratic approximation)
 
@@ -104,7 +104,7 @@ Code implementation:
 
 ### Adaptive-VQE (AVQE)
 
-Within `src/algorithms/AVQE` there is a single `avqe.py` file that can be run to produce the avqe results.
+Within `src/Algorithms/AVQE` there is a single `avqe.py` file that can be run to produce the avqe results.
 
 Code implementation:
 
