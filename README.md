@@ -1,9 +1,6 @@
 # Quantum Variational Methods for Supersymmetric Quantum Mechanics --- data release
 
-This repository contains the data and code used for [arXiv:2510.26506](https://doi.org/10.48550/arXiv.2510.26506)
-
-> **Quantum Variational Methods for Supersymmetric Quantum Mechanics**
-> J. Kerfoot, E. Mendicelli, D. Schaich
+This repository contains the data and code used for [arXiv:2510.26506](https://doi.org/10.48550/arXiv.2510.26506), *Quantum Variational Methods for Supersymmetric Quantum Mechanics* by J. Kerfoot, E. Mendicelli and D. Schaich.
 
 We employ quantum variational methods to investigate a single-site interacting fermion–boson system—an example of a minimal supersymmetric model that can exhibit spontaneous supersymmetry breaking. By using adaptive variational techniques, we identify optimal ansätze that scale efficiently, allowing for reliable identification of spontaneous supersymmetry breaking. This work lays a foundation for future quantum computing investigations of more complex and physically rich fermion–boson quantum field theories in higher dimensions.
 
