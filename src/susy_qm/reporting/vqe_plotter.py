@@ -28,7 +28,7 @@ def _load_json(fp: Path) -> Dict[str, Any]:
     fp = Path(fp)
     with fp.open("r", encoding="utf-8") as f:
         return json.load(f)
-    
+
 
 def format_axis(
     ax, *,
@@ -52,16 +52,16 @@ def format_axis(
         def fmt_symlog(x, _):
             if x == 0:
                 return "0" if show_zero else ""
-            
+
             a = abs(x)
             if a < linthresh:
                 s = f"{x:.3g}".rstrip("0").rstrip(".")
                 return s or "0"
-            
+
             exp = int(np.round(np.log10(a)))
 
             return rf"$-10^{{{exp}}}$" if x < 0 else rf"$10^{{{exp}}}$"
-        
+
         ax.xaxis.set_major_formatter(FuncFormatter(fmt_symlog))
 
     elif scale == "log":
@@ -119,19 +119,19 @@ class BoxPlotter:
     @staticmethod
     def _as_2d_axes(axs, nr: int, nc: int):
         """Return axes as a 2D ndarray with shape (nr, nc)."""
-        
+
         if hasattr(axs, "plot"):
             return np.array([[axs]])
         arr = np.asarray(axs)
-        if arr.ndim == 0:  
+        if arr.ndim == 0:
             return np.array([[arr.item()]])
         if arr.ndim == 1:
-            
+
             if nr == 1 and arr.size == nc:
                 return arr.reshape(1, nc)
             if nc == 1 and arr.size == nr:
                 return arr.reshape(nr, 1)
-            
+
             return arr.reshape(1, -1)
         return arr  # already 2D
 
@@ -176,7 +176,7 @@ class BoxPlotter:
         - panels: one per potential × shots combination
         """
         by_dataset = False if type(data_paths)==str else True
-        ncols = len(data_paths) if by_dataset else len(self.shots_list)  
+        ncols = len(data_paths) if by_dataset else len(self.shots_list)
         cols = data_paths if by_dataset else self.shots_list
 
         fig, axes_arr = self._ensure_axes_grid(ncols=ncols, existing_axes=axes, sharey=True, figsize=(12, 8))
@@ -189,7 +189,7 @@ class BoxPlotter:
         for i, pot in enumerate(self.potentials):
             for j, col in enumerate(cols):
 
-                if by_dataset: 
+                if by_dataset:
                     title, data_path = col
                 else:
                     shots=col
@@ -215,13 +215,13 @@ class BoxPlotter:
                 all_vals = np.concatenate(energies_per_cutoff)
 
                 if val_diff < scale_thresh:
-                    scale = "linear"  
+                    scale = "linear"
                 elif np.all(all_vals > 0):
                     scale = "log"
                 else:
                     scale = "symlog"
 
-                    
+
                 # draw horizontal boxplots
                 bp = ax.boxplot(
                     energies_per_cutoff,
@@ -255,7 +255,7 @@ class BoxPlotter:
                     # caps
                     for c in (bp["caps"][2*k], bp["caps"][2*k + 1]):
                         c.set_color(colour)
-                    
+
                     bp["medians"][k].set_color(colour)
 
                     if k < len(bp["fliers"]):
@@ -267,7 +267,7 @@ class BoxPlotter:
                     ax.axvline(x=min_eigenvalues[k], color=colour, linestyle="--", linewidth=1.0, alpha=0.7, label=f"$\\Lambda$={cutoff}")
 
                 format_axis(ax, scale=scale)
-  
+
                 # labels/titles
                 if j == 0:
                     ax.set_ylabel(pot)
@@ -290,7 +290,7 @@ class BoxPlotter:
                 #ax.set_xscale("symlog")#, linthresh=1e-1)
                 ax.grid(True, axis="x", linestyle="--", alpha=0.4)
 
-        
+
         if show_legend:
             #axes_arr[0, 0].legend(loc="upper right", fontsize=8, ncol=len(self.cutoffs))
             axes_arr[0, 0].legend(loc="upper left", fontsize=8, ncol=1)
@@ -376,12 +376,12 @@ class VQEPlotter:
             elif sharey:
                 ax.tick_params(axis="y", left=False, labelleft=False)
 
-       
+
         axes_arr[len(self.potentials) // 2].set_xlabel(r"$\Lambda$")
         axes_arr[0].legend(loc="upper left", fontsize=8)
         fig.tight_layout(pad=0.6)
         return fig, axes_arr
-    
+
 
     def plot_evals_vs_cutoff_box(
         self,
@@ -448,7 +448,7 @@ class VQEPlotter:
             if show_title: ax.set_title(pot)
             ax.set_xticks(x, self.cutoffs)
             ax.grid(True, axis="y")
-            ax.set_yscale("log") 
+            ax.set_yscale("log")
 
         for i, ax in enumerate(axes_arr):
             if i > 0:
@@ -456,7 +456,7 @@ class VQEPlotter:
 
         axes_arr[0].set_ylabel(r"$N_{evals}$")
         axes_arr[len(self.potentials) // 2].set_xlabel(r"$\Lambda$")
-        
+
         legend_patches = [
             Patch(facecolor=label_to_color[lab], edgecolor=label_to_color[lab], alpha=alpha, label=lab)
             for lab in labels
@@ -465,6 +465,3 @@ class VQEPlotter:
 
         fig.tight_layout(pad=0.6)
         return fig, axes_arr
-
-
-        

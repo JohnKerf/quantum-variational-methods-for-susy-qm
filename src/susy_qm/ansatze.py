@@ -37,7 +37,7 @@ def ansatz_by_gate(ansatz_fn, params, num_qubits, max_gate):
             ansatz_fn(params, num_qubits)
 
         gate_list = tape.operations
-   
+
     return gate_list
 
 
@@ -48,7 +48,6 @@ def pl_to_qiskit(ansatz_fn, params=None, num_qubits=None, num_layers=None, circu
         num_params = ansatz_fn.n_params(num_qubits,num_layers)
     else:
         num_params = ansatz_fn.n_params
-    
 
     if params is None:
         param_objs = [Parameter(f"θ{i}") for i in range(num_params)]
@@ -79,7 +78,6 @@ def pl_to_qiskit(ansatz_fn, params=None, num_qubits=None, num_layers=None, circu
 
         # ---- Initial basis state preparation ----
         if name == "BasisState":
-          
             bits = np.array(params[0]).astype(int).ravel().tolist()
             for b, w in zip(bits, wires):
                 if b == 1:
@@ -136,7 +134,7 @@ def pl_to_qiskit(ansatz_fn, params=None, num_qubits=None, num_layers=None, circu
 
 
 
-################### Real Amplitudes #################### 
+################### Real Amplitudes ####################
 def real_amplitudes(params, num_qubits, num_layers=1, circular=True):
 
     n=num_qubits-1
@@ -154,10 +152,10 @@ def real_amplitudes(params, num_qubits, num_layers=1, circular=True):
     def entangle_layer():
 
         qml.Barrier()
-    
+
         for i in range(n):
             qml.CNOT(wires=[wires[i], wires[i + 1]])
-      
+
         if circular and n >= 2:
             qml.CNOT(wires=[wires[-1], wires[0]])
 
@@ -168,7 +166,7 @@ def real_amplitudes(params, num_qubits, num_layers=1, circular=True):
         ry_layer()
         if n > 1:
             entangle_layer()
-            
+
     ry_layer()
 
 
@@ -180,7 +178,7 @@ real_amplitudes.n_params = lambda num_qubits, num_layers=1, **_: num_qubits * (n
 
 
 
-################### COBYQA Adaptive-VQE Exact Ansatze ####################      
+################### COBYQA Adaptive-VQE Exact Ansatze ####################
 '''
 Ansatze produced from running the COBYQA Adaptive-VQE with shots=None
 '''
@@ -196,7 +194,7 @@ CQAVQE_QHO_exact.name = "CQAVQE_QHO_exact"
 
 ################### DW ###################
 def CQAVQE_DW2_exact(params, num_qubits, include_fermion=True):
-    qml.RY(params[0], wires=[num_qubits-1])    
+    qml.RY(params[0], wires=[num_qubits-1])
 
 CQAVQE_DW2_exact.n_params = 1
 CQAVQE_DW2_exact.name = "CQAVQE_DW2_exact"
@@ -207,10 +205,10 @@ def CQAVQE_DW4_exact(params, num_qubits, include_fermion=True):
         qml.BasisState(basis, wires=range(num_qubits))
     qml.RY(params[0], wires=[num_qubits-2])
     qml.RY(params[1], wires=[num_qubits-1])
-    qml.CRY(params[2], wires=[num_qubits-2,num_qubits-1])   
+    qml.CRY(params[2], wires=[num_qubits-2,num_qubits-1])
 
 CQAVQE_DW4_exact.n_params = 3
-CQAVQE_DW4_exact.name = "CQAVQE_DW4_exact" 
+CQAVQE_DW4_exact.name = "CQAVQE_DW4_exact"
 
 def CQAVQE_DW8_exact(params, num_qubits, include_fermion=True):
     qml.RY(params[0], wires=[num_qubits-1])
@@ -219,7 +217,7 @@ def CQAVQE_DW8_exact(params, num_qubits, include_fermion=True):
     qml.RY(params[3], wires=[num_qubits-2])
     qml.CRY(params[4], wires=[num_qubits-1, num_qubits-3])
     qml.CRY(params[5], wires=[num_qubits-2, num_qubits-3])
-    qml.RY(params[6], wires=[num_qubits-2])  
+    qml.RY(params[6], wires=[num_qubits-2])
 
 CQAVQE_DW8_exact.n_params = 7
 CQAVQE_DW8_exact.name = "CQAVQE_DW8_exact"
@@ -305,7 +303,6 @@ def CQAVQE_DW64_exact(params, num_qubits, include_fermion=True):
     qml.CRY(params[24], wires=[num_qubits-4, num_qubits-1])
     qml.RY(params[25], wires=[num_qubits-4])
     qml.RY(params[26], wires=[num_qubits-6])
-    
 
 CQAVQE_DW64_exact.n_params = 27
 CQAVQE_DW64_exact.name = "CQAVQE_DW64_exact"
@@ -316,7 +313,7 @@ def CQAVQE_AHO2_exact(params, num_qubits, include_fermion=True):
     if include_fermion:
         basis = [1] + [0]*(num_qubits-1)
         qml.BasisState(basis, wires=range(num_qubits))
-    qml.RY(params[0], wires=[0])  
+    qml.RY(params[0], wires=[0])
 
 CQAVQE_AHO2_exact.n_params = 1
 CQAVQE_AHO2_exact.name = "CQAVQE_AHO2_exact"
@@ -336,7 +333,7 @@ def CQAVQE_AHO8_exact(params, num_qubits, include_fermion=True):
         qml.BasisState(basis, wires=range(num_qubits))
     qml.RY(params[0], wires=[num_qubits-3])
     qml.RY(params[1], wires=[num_qubits-2])
-    qml.CRY(params[2], wires=[num_qubits-2, num_qubits-3]) 
+    qml.CRY(params[2], wires=[num_qubits-2, num_qubits-3])
 
 CQAVQE_AHO8_exact.n_params = 3
 CQAVQE_AHO8_exact.name = "CQAVQE_AHO8_exact"
@@ -351,7 +348,7 @@ def CQAVQE_AHO16_exact(params, num_qubits, include_fermion=True):
     qml.CRY(params[3], wires=[num_qubits-2, num_qubits-3])
     qml.CRY(params[4], wires=[num_qubits-2, num_qubits-4])
     qml.CRY(params[5], wires=[num_qubits-3, num_qubits-4])
-    qml.CRY(params[6], wires=[num_qubits-4, num_qubits-3])  
+    qml.CRY(params[6], wires=[num_qubits-4, num_qubits-3])
 
 CQAVQE_AHO16_exact.n_params = 7
 CQAVQE_AHO16_exact.name = "CQAVQE_AHO16_exact"
@@ -366,16 +363,16 @@ def CQAVQE_AHO32_exact(params, num_qubits, include_fermion=True):
     qml.CRY(params[3], wires=[num_qubits-2, num_qubits-3])
     qml.CRY(params[4], wires=[num_qubits-2, num_qubits-4])
     qml.RY(params[5], wires=[num_qubits-5])
-    qml.CRY(params[6], wires=[num_qubits-3, num_qubits-4])  
+    qml.CRY(params[6], wires=[num_qubits-3, num_qubits-4])
     qml.CRY(params[7], wires=[num_qubits-2, num_qubits-5])
-    qml.CRY(params[8], wires=[num_qubits-3, num_qubits-5])  
+    qml.CRY(params[8], wires=[num_qubits-3, num_qubits-5])
     qml.CRY(params[9], wires=[num_qubits-4, num_qubits-5])
     qml.RY(params[10], wires=[num_qubits-3])
-    qml.CRY(params[11], wires=[num_qubits-4, num_qubits-3])  
+    qml.CRY(params[11], wires=[num_qubits-4, num_qubits-3])
     qml.RY(params[12], wires=[num_qubits-4])
-    qml.CRY(params[13], wires=[num_qubits-5, num_qubits-3]) 
+    qml.CRY(params[13], wires=[num_qubits-5, num_qubits-3])
     qml.RY(params[14], wires=[num_qubits-5])
-    qml.CRY(params[15], wires=[num_qubits-5, num_qubits-4]) 
+    qml.CRY(params[15], wires=[num_qubits-5, num_qubits-4])
     qml.RY(params[16], wires=[num_qubits-5])
 
 
@@ -393,24 +390,24 @@ def CQAVQE_AHO64_exact(params, num_qubits, include_fermion=True):
     qml.CRY(params[3], wires=[num_qubits-2, num_qubits-3])
     qml.CRY(params[4], wires=[num_qubits-2, num_qubits-4])
     qml.RY(params[5], wires=[num_qubits-5])
-    qml.CRY(params[6], wires=[num_qubits-3, num_qubits-4])  
+    qml.CRY(params[6], wires=[num_qubits-3, num_qubits-4])
     qml.CRY(params[7], wires=[num_qubits-2, num_qubits-5])
     qml.RY(params[8], wires=[num_qubits-4])
-    qml.CRY(params[9], wires=[num_qubits-3, num_qubits-5])  
+    qml.CRY(params[9], wires=[num_qubits-3, num_qubits-5])
     qml.CRY(params[10], wires=[num_qubits-4, num_qubits-5])
     qml.CRY(params[11], wires=[num_qubits-4, num_qubits-5])
     qml.RY(params[12], wires=[num_qubits-3])
     qml.RY(params[13], wires=[num_qubits-3])
-    qml.CRY(params[14], wires=[num_qubits-4, num_qubits-3])  
-    qml.CRY(params[15], wires=[num_qubits-4, num_qubits-3])  
-    qml.CRY(params[16], wires=[num_qubits-4, num_qubits-3])  
+    qml.CRY(params[14], wires=[num_qubits-4, num_qubits-3])
+    qml.CRY(params[15], wires=[num_qubits-4, num_qubits-3])
+    qml.CRY(params[16], wires=[num_qubits-4, num_qubits-3])
     qml.RY(params[17], wires=[num_qubits-4])
     qml.RY(params[18], wires=[num_qubits-4])
-    qml.CRY(params[19], wires=[num_qubits-5, num_qubits-3]) 
+    qml.CRY(params[19], wires=[num_qubits-5, num_qubits-3])
     qml.RY(params[20], wires=[num_qubits-5])
-    qml.CRY(params[21], wires=[num_qubits-5, num_qubits-4]) 
+    qml.CRY(params[21], wires=[num_qubits-5, num_qubits-4])
     qml.RY(params[22], wires=[num_qubits-5])
-    qml.CRY(params[23], wires=[num_qubits-5, num_qubits-4]) 
+    qml.CRY(params[23], wires=[num_qubits-5, num_qubits-4])
     qml.RY(params[24], wires=[num_qubits-5])
     qml.RY(params[25], wires=[num_qubits-5])
 
@@ -428,33 +425,32 @@ def CQAVQE_AHO128_exact(params, num_qubits):
     qml.CRY(params[3], wires=[num_qubits-2, num_qubits-3])
     qml.CRY(params[4], wires=[num_qubits-2, num_qubits-4])
     qml.RY(params[5], wires=[num_qubits-5])
-    qml.CRY(params[6], wires=[num_qubits-3, num_qubits-4])  
+    qml.CRY(params[6], wires=[num_qubits-3, num_qubits-4])
     qml.CRY(params[7], wires=[num_qubits-2, num_qubits-5])
     qml.RY(params[8], wires=[num_qubits-6])
-    qml.CRY(params[9], wires=[num_qubits-3, num_qubits-5])  
+    qml.CRY(params[9], wires=[num_qubits-3, num_qubits-5])
     qml.CRY(params[10], wires=[num_qubits-2, num_qubits-6])
     qml.CRY(params[11], wires=[num_qubits-4, num_qubits-5])
     qml.RY(params[12], wires=[num_qubits-3])
-    qml.CRY(params[13], wires=[num_qubits-3, num_qubits-6])  
-    qml.CRY(params[14], wires=[num_qubits-4, num_qubits-6])  
+    qml.CRY(params[13], wires=[num_qubits-3, num_qubits-6])
+    qml.CRY(params[14], wires=[num_qubits-4, num_qubits-6])
     qml.RY(params[15], wires=[num_qubits-7])
-    qml.CRY(params[16], wires=[num_qubits-4, num_qubits-3])  
+    qml.CRY(params[16], wires=[num_qubits-4, num_qubits-3])
     qml.RY(params[17], wires=[num_qubits-4])
     qml.RY(params[18], wires=[num_qubits-6])
     qml.RY(params[19], wires=[num_qubits-5])
-    qml.CRY(params[20], wires=[num_qubits-3, num_qubits-2])  
-    qml.CRY(params[21], wires=[num_qubits-4, num_qubits-2])  
+    qml.CRY(params[20], wires=[num_qubits-3, num_qubits-2])
+    qml.CRY(params[21], wires=[num_qubits-4, num_qubits-2])
     qml.RY(params[22], wires=[num_qubits-3])
-    qml.CRY(params[23], wires=[num_qubits-5, num_qubits-3])  
+    qml.CRY(params[23], wires=[num_qubits-5, num_qubits-3])
     qml.RY(params[24], wires=[num_qubits-5])
 
-    
 CQAVQE_AHO128_exact.n_params = 25
 CQAVQE_AHO128_exact.name = "CQAVQE_AHO128_exact"
 
 
 
-################### COBYQA Adaptive-VQE Reduced Ansatze ####################      
+################### COBYQA Adaptive-VQE Reduced Ansatze ####################
 '''
 Reduced Ansatze produced from running the COBYQA Adaptive-VQE with shots=None
 '''
@@ -470,7 +466,7 @@ CQAVQE_QHO_Reduced.name = "CQAVQE_QHO_Reduced"
 
 ################### DW ###################
 def CQAVQE_DW2_Reduced(params, num_qubits, include_fermion=True):
-    qml.RY(params[0], wires=[num_qubits-1])     
+    qml.RY(params[0], wires=[num_qubits-1])
 
 CQAVQE_DW2_Reduced.n_params = 1
 CQAVQE_DW2_Reduced.name = "CQAVQE_DW2_Reduced"
@@ -481,10 +477,10 @@ def CQAVQE_DW4_Reduced(params, num_qubits, include_fermion=True):
         qml.BasisState(basis, wires=range(num_qubits))
     qml.RY(params[0], wires=[num_qubits-2])
     qml.RY(params[1], wires=[num_qubits-1])
-    qml.CRY(params[2], wires=[num_qubits-2,num_qubits-1])     
+    qml.CRY(params[2], wires=[num_qubits-2,num_qubits-1])
 
 CQAVQE_DW4_Reduced.n_params = 3
-CQAVQE_DW4_Reduced.name = "CQAVQE_DW4_Reduced" 
+CQAVQE_DW4_Reduced.name = "CQAVQE_DW4_Reduced"
 
 def CQAVQE_DW8_Reduced(params, num_qubits, include_fermion=True):
     qml.RY(params[0], wires=[num_qubits-1])
@@ -501,7 +497,6 @@ def CQAVQE_DW16_Reduced(params, num_qubits, include_fermion=True):
     qml.CRY(params[1], wires=[num_qubits-1, num_qubits-2])
     qml.RY(params[2], wires=[num_qubits-3])
     qml.RY(params[3], wires=[num_qubits-2])
-    
 
 CQAVQE_DW16_Reduced.n_params = 4
 CQAVQE_DW16_Reduced.name = "CQAVQE_DW16_Reduced"
@@ -511,7 +506,7 @@ def CQAVQE_AHO2_Reduced(params, num_qubits, include_fermion=True):
     if include_fermion:
         basis = [1] + [0]*(num_qubits-1)
         qml.BasisState(basis, wires=range(num_qubits))
-    qml.RY(params[0], wires=[0])  
+    qml.RY(params[0], wires=[0])
 
 CQAVQE_AHO2_Reduced.n_params = 1
 CQAVQE_AHO2_Reduced.name = "CQAVQE_AHO2_Reduced"
@@ -531,7 +526,7 @@ def CQAVQE_AHO8_Reduced(params, num_qubits, include_fermion=True):
         qml.BasisState(basis, wires=range(num_qubits))
     qml.RY(params[0], wires=[num_qubits-3])
     qml.RY(params[1], wires=[num_qubits-2])
-    qml.CRY(params[2], wires=[num_qubits-2, num_qubits-3]) 
+    qml.CRY(params[2], wires=[num_qubits-2, num_qubits-3])
 
 CQAVQE_AHO8_Reduced.n_params = 3
 CQAVQE_AHO8_Reduced.name = "CQAVQE_AHO8_Reduced"
@@ -549,11 +544,9 @@ CQAVQE_AHO16_Reduced.n_params = 4
 CQAVQE_AHO16_Reduced.name = "CQAVQE_AHO16_Reduced"
 
 
-        
-    
 '''
 Getter for ansatze
-'''   
+'''
 ANSATZE = {
     obj.name: obj
     for obj in globals().values()
@@ -564,11 +557,5 @@ def get(name):
     try:
         return ANSATZE[name]
     except KeyError:
-        raise ValueError(f"Ansatz '{name}' not found. Available: {list(ANSATZE)}")    
+        raise ValueError(f"Ansatz '{name}' not found. Available: {list(ANSATZE)}")
 
-
-
-
-
-
-        
