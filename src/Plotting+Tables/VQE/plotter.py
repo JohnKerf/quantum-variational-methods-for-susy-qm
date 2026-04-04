@@ -13,11 +13,13 @@ cutoffs = [2,4,8,16]
 potentials = ["QHO", "AHO","DW"]
 shots_list = [None,10000]
 
+os.makedirs("Figures", exist_ok=True)
+
 data_paths = [
-    ("L-BFGS-B", r"paper_results_data\Figs5&6\L-BFGS-B"),
-    ("COBYLA", r"paper_results_data\Figs5&6\COBYLA"),
-    ("COBYQA", r"paper_results_data\Figs5&6\COBYQA"),
-    ("Differential Evolution", r"paper_results_data\Figs5&6\Differential Evolution")
+    ("L-BFGS-B", r"data\Figs5+6\L-BFGS-B"),
+    ("COBYLA", r"data\Figs5+6\COBYLA"),
+    ("COBYQA", r"data\Figs5+6\COBYQA"),
+    ("Differential Evolution", r"data\Figs5+6\Differential_Evolution")
 ]
 
 vqe_plotter = VQEPlotter(data_paths, potentials, cutoffs)
@@ -40,9 +42,9 @@ potentials = ["QHO", "AHO","DW"]
 shots_list = [None,10000]
 
 data_paths=[
-        ("Full", r"paper_results_data\Figs9-12\Full"),
-        ("Truncated", r"paper_results_data\Figs9-12\Truncated"),
-        ("Real Amplitudes", r"paper_results_data\Figs9-12\Real Amplitudes"),
+        ("Full", r"data\Figs9-12\Full"),
+        ("Truncated", r"data\Figs9-12\Truncated"),
+        ("Real Amplitudes", r"data\Figs9-12\Real_Amplitudes"),
     ]
 
 vqe_plotter = VQEPlotter(data_paths, potentials, cutoffs)

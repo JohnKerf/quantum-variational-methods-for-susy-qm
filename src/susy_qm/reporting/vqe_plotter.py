@@ -22,6 +22,17 @@ repo_path = git.Repo('.', search_parent_directories=True).working_tree_dir
 
 logger = logging.getLogger(__name__)
 
+
+POTENTIAL_LABELS = {
+    "QHO": "HO", #Needed to rename for paper
+    "AHO": "AHO",
+    "DW": "DW",
+}
+
+def pot_label(p):
+    return POTENTIAL_LABELS.get(p, p)
+
+
 LabelPath = Tuple[str, str]
 
 def _load_json(fp: Path) -> Dict[str, Any]:
@@ -270,7 +281,7 @@ class BoxPlotter:
 
                 # labels/titles
                 if j == 0:
-                    ax.set_ylabel(pot)
+                    ax.set_ylabel(pot_label(pot))
                 else:
                     ax.set_ylabel("")
                     ax.tick_params(axis="y", left=False, labelleft=False)
@@ -368,7 +379,7 @@ class VQEPlotter:
                     y = summary.delta_min_e[pot].reindex(self.cutoffs)
                 marker = markers[j]
                 ax.plot(self.cutoffs, y, linewidth=linewidth, marker=marker, markersize=markersize, label=label)
-            ax.set_title(pot)
+            ax.set_title(pot_label(pot))
             ax.grid(True)
             self._style_x_cutoffs(ax)
             if i == 0:
@@ -445,7 +456,7 @@ class VQEPlotter:
                     for artist in bp[part]:
                         artist.set_color(color)
 
-            if show_title: ax.set_title(pot)
+            if show_title: ax.set_title(pot_label(pot))
             ax.set_xticks(x, self.cutoffs)
             ax.grid(True, axis="y")
             ax.set_yscale("log")

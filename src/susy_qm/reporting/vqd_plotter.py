@@ -10,6 +10,17 @@ from matplotlib.lines import Line2D
 import git
 repo_path = git.Repo('.', search_parent_directories=True).working_tree_dir
 
+
+POTENTIAL_LABELS = {
+    "QHO": "HO", #Needed to rename for paper
+    "AHO": "AHO",
+    "DW": "DW",
+}
+
+def pot_label(p):
+    return POTENTIAL_LABELS.get(p, p)
+
+
 def _load_json(fp: Path) -> Dict[str, Any]:
     fp = Path(fp)
     with fp.open("r", encoding="utf-8") as f:
@@ -78,7 +89,7 @@ class VQDPlotter:
                 ax.axhline(exact_eigenvalues[i], color=color_map[i], linestyle='--', linewidth=0.5)
 
             # Title and axis labels
-            ax.text(0.5, 0.95, f"{potential}",
+            ax.text(0.5, 0.95, f"{pot_label(potential)}",
                 transform=ax.transAxes,
                 fontsize='large',
                 ha='center', va='top',

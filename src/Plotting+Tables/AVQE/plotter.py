@@ -5,6 +5,17 @@ import git
 
 repo_path = git.Repo('.', search_parent_directories=True).working_tree_dir
 
+os.makedirs("Figures", exist_ok=True)
+
+POTENTIAL_LABELS = {
+    "QHO": "HO", #Needed to rename for paper
+    "AHO": "AHO",
+    "DW": "DW",
+}
+
+def pot_label(p):
+    return POTENTIAL_LABELS.get(p, p)
+
 
 markers = ["o", "s", "^"]
 potentials = ["QHO","AHO","DW"]
@@ -20,7 +31,7 @@ for i, cutoff in enumerate(cutoffs):
 
         num_qubits = int(np.log2(cutoff)+1)
 
-        dpath = os.path.join(repo_path, r"paper_results_data\Table2&Fig7\{}\data_{}.txt".format(potential,cutoff))
+        dpath = os.path.join(repo_path, r"data\Table2+Fig7\{}\data_{}.txt".format(potential,cutoff))
 
         with open(dpath, "r", encoding="utf-8") as file:
             content = file.read()
@@ -31,9 +42,9 @@ for i, cutoff in enumerate(cutoffs):
         min_eigenvalue = data['min_eigenvalue']
         energies = data['best_energy_list_reduced']
 
-        label = f"{potential}{cutoff}"
+        label = f"{pot_label(potential)}{cutoff}"
 
-        line, = ax.plot(range(1, len(energies) + 1), energies, marker=marker, markersize= 4, linestyle='--', alpha=0.8, linewidth=1, label=potential)
+        line, = ax.plot(range(1, len(energies) + 1), energies, marker=marker, markersize= 4, linestyle='--', alpha=0.8, linewidth=1, label=pot_label(potential))
         colour = line.get_color()
         ax.axhline(y=min_eigenvalue, color=colour, linestyle=':')
 
