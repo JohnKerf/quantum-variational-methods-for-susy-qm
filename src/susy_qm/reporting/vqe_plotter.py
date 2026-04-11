@@ -11,6 +11,7 @@ import os
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+
 import matplotlib.ticker as ticker
 from matplotlib.ticker import LogLocator, FuncFormatter, SymmetricalLogLocator
 from matplotlib.patches import Patch
@@ -22,6 +23,9 @@ repo_path = git.Repo('.', search_parent_directories=True).working_tree_dir
 
 logger = logging.getLogger(__name__)
 
+import matplotlib as mpl
+from .plot_style import PLOT_STYLE
+mpl.rcParams.update(PLOT_STYLE)
 
 POTENTIAL_LABELS = {
     "QHO": "HO", #Needed to rename for paper
@@ -48,7 +52,7 @@ def format_axis(
     base: int = 10,
     show_zero: bool = True
 ):
-    ax.tick_params(axis='both', which='both', direction='out', width=1, labelsize=8)
+    ax.tick_params(axis='both', which='both', direction='out', width=1)#, labelsize=8)
 
     ax.xaxis.get_offset_text().set_visible(False)
 
@@ -245,7 +249,7 @@ class BoxPlotter:
                     whiskerprops=dict(linewidth=1.3),
                     capprops=dict(linewidth=1.3),
                     boxprops=dict(linewidth=1.3),
-                    flierprops=dict(marker='o', markersize=4, linestyle='none', markeredgewidth=0.8),
+                    flierprops=dict(marker='o', linestyle='none', markeredgewidth=0.8), #markersize=4,
                 )
 
                 for label in ax.get_yticklabels():
@@ -304,7 +308,7 @@ class BoxPlotter:
 
         if show_legend:
             #axes_arr[0, 0].legend(loc="upper right", fontsize=8, ncol=len(self.cutoffs))
-            axes_arr[0, 0].legend(loc="upper left", fontsize=8, ncol=1)
+            axes_arr[0, 0].legend(loc="upper left", ncol=1) #fontsize=8,
 
         fig.tight_layout(pad=0.6)
         return fig, axes_arr
@@ -357,7 +361,7 @@ class VQEPlotter:
         ax.xaxis.set_minor_locator(ticker.NullLocator())
 
 
-    def plot_delta_e_vs_cutoff_line(self, shots, *, figsize=(12, 4), axes=None, linewidth=1.0, marker="^", markersize=4.0, metric='median', scale="symlog", linthresh=1.0, sharey=True):
+    def plot_delta_e_vs_cutoff_line(self, shots, *, figsize=(12, 4), axes=None, linewidth=1.0, marker="^",  metric='median', scale="symlog", linthresh=1.0, sharey=True): #markersize=4.0,
 
         markers = ["o", "s", "^", "D", "v", "P", "*", "X"]
         fig, axes_arr = self._ensure_axes_grid(figsize=figsize, existing_axes=axes, sharey=sharey)
@@ -378,7 +382,7 @@ class VQEPlotter:
                 else:
                     y = summary.delta_min_e[pot].reindex(self.cutoffs)
                 marker = markers[j]
-                ax.plot(self.cutoffs, y, linewidth=linewidth, marker=marker, markersize=markersize, label=label)
+                ax.plot(self.cutoffs, y, linewidth=linewidth, marker=marker, label=label)
             ax.set_title(pot_label(pot))
             ax.grid(True)
             self._style_x_cutoffs(ax)

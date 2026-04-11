@@ -7,6 +7,10 @@ repo_path = git.Repo('.', search_parent_directories=True).working_tree_dir
 
 os.makedirs("Figures", exist_ok=True)
 
+import matplotlib as mpl
+from susy_qm.reporting.plot_style import PLOT_STYLE
+mpl.rcParams.update(PLOT_STYLE)
+
 POTENTIAL_LABELS = {
     "QHO": "HO", #Needed to rename for paper
     "AHO": "AHO",
@@ -44,7 +48,7 @@ for i, cutoff in enumerate(cutoffs):
 
         label = f"{pot_label(potential)}{cutoff}"
 
-        line, = ax.plot(range(1, len(energies) + 1), energies, marker=marker, markersize= 4, linestyle='--', alpha=0.8, linewidth=1, label=pot_label(potential))
+        line, = ax.plot(range(1, len(energies) + 1), energies, marker=marker, linestyle='--', alpha=0.8, linewidth=1, label=pot_label(potential))#markersize= 4,
         colour = line.get_color()
         ax.axhline(y=min_eigenvalue, color=colour, linestyle=':')
 

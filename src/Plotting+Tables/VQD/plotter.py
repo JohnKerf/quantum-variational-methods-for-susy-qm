@@ -12,7 +12,7 @@ warnings.simplefilter(action='ignore', category=RuntimeWarning)
 os.makedirs("Figures", exist_ok=True)
 
 data_path = os.path.join(repo_path,r"data\Fig13")
-potentials = ["QHO", "AHO","DW"]#["QHO", "AHO","DW"]
+potentials = ["QHO", "AHO","DW"]
 cutoff=16
 vqd_plotter = VQDPlotter(data_path,potentials,cutoff)
 

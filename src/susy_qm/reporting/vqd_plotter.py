@@ -6,10 +6,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-
 import git
 repo_path = git.Repo('.', search_parent_directories=True).working_tree_dir
 
+import matplotlib as mpl
+from .plot_style import PLOT_STYLE
+mpl.rcParams.update(PLOT_STYLE)
 
 POTENTIAL_LABELS = {
     "QHO": "HO", #Needed to rename for paper
@@ -120,7 +122,7 @@ class VQDPlotter:
             energy_level_indicators = [
                 Line2D([], [], marker=marker_styles[i],
                     color=color_map[i],
-                    linestyle='None', markersize=6,
+                    linestyle='None', #markersize=6,
                     label=f"$E_{{{i}}}$")
                 for i in range(num_energy_levels)
             ]
